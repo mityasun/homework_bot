@@ -20,6 +20,7 @@ class MockResponseGET:
         assert params['from_date'] == 234435234,\
             'Проверьте, что в параметрах `params` для запроса статуса домашней работы `from_date` передаете timestamp'
         self.random_sid = random_sid
+        self.status_code = 200
 
     def json(self):
         data = {
