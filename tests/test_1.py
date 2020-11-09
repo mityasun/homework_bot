@@ -1,11 +1,12 @@
 from inspect import signature
+
 import requests
 import telegram
 
 
 class MockResponseGET:
 
-    def __init__(self, url, params=None, random_sid=None, **kwargs):
+    def __init__(self, url, params=None, random_sid=None, current_timestamp=None, **kwargs):
         assert url.startswith('https://praktikum.yandex.ru/api/user_api/homework_statuses'), \
             'Проверьте, что вы делаете запрос на правильный ресурс API для запроса статуса домашней работы'
         assert 'headers' in kwargs, 'Проверьте, что вы передали загаловки `headers` для запроса статуса домашней работы'
@@ -17,10 +18,9 @@ class MockResponseGET:
             'Проверьте, что передали параметры `params` для запроса статуса домашней работы'
         assert 'from_date' in params, \
             'Проверьте, что в параметрах `params` для запроса статуса домашней работы `from_date`'
-        assert params['from_date'] == 234435234,\
+        assert params['from_date'] == current_timestamp,\
             'Проверьте, что в параметрах `params` для запроса статуса домашней работы `from_date` передаете timestamp'
         self.random_sid = random_sid
-        self.status_code = 200
 
     def json(self):
         data = {
@@ -55,17 +55,18 @@ class TestHomework:
 
         assert hasattr(homework, 'send_message'), 'Функция `send_message()` не существует. Не удаляйте её.'
         assert hasattr(homework.send_message, '__call__'), 'Функция `send_message()` не существует. Не удаляйте её.'
-        assert len(signature(homework.send_message).parameters) == 1, \
+        assert len(signature(homework.send_message).parameters) == 2, \
             'Функция `send_message()` должна быть с одним параметром.'
 
-        result = homework.send_message('Test_message_check')
+        bot = telegram.Bot(token='')
+        result = homework.send_message('Test_message_check', bot)
         assert result == random_sid, \
             'Проверьте, что вы возвращаете в функции send_message() отправленное сообщение ботом bot.send_message()'
 
-    def test_get_homework_statuses(self, monkeypatch, random_sid):
+    def test_get_homework_statuses(self, monkeypatch, random_sid, current_timestamp):
 
         def mock_response_get(*args, **kwargs):
-            return MockResponseGET(*args, random_sid=random_sid, **kwargs)
+            return MockResponseGET(*args, random_sid=random_sid, current_timestamp=current_timestamp, **kwargs)
 
         monkeypatch.setattr(requests, 'get', mock_response_get)
 
@@ -78,7 +79,7 @@ class TestHomework:
         assert len(signature(homework.get_homework_statuses).parameters) == 1, \
             'Функция `get_homework_statuses()` должна быть с одним параметром.'
 
-        result = homework.get_homework_statuses(234435234)
+        result = homework.get_homework_statuses(current_timestamp)
         assert type(result) == dict, \
             'Проверьте, что из функции get_homework_statuses() возвращается словарь'
         assert 'homeworks' in result, \
