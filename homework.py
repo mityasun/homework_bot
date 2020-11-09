@@ -1,13 +1,14 @@
 import os
+import time
+
 import requests
 import telegram
-import time
 from dotenv import load_dotenv
 
 load_dotenv()
 
 
-PRACTICUM_TOKEN = os.getenv("PRACTICUM_TOKEN")
+PRAKTIKUM_TOKEN = os.getenv("PRAKTIKUM_TOKEN")
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
@@ -27,12 +28,13 @@ def get_homework_statuses(current_timestamp):
     return homework_statuses.json()
 
 
-def send_message(message):
+def send_message(message, bot_client):
     ...
-    return bot.send_message(...)
+    return bot_client.send_message(...)
 
 
 def main():
+    # проинициализировать бота здесь
     current_timestamp = int(time.time())  # начальное значение timestamp
 
     while True:
