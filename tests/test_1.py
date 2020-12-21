@@ -1,7 +1,6 @@
 import sys
 from inspect import signature
 
-# import logging
 import requests
 import telegram
 
@@ -55,6 +54,7 @@ class MockTelegramBot:
 class TestHomework:
 
     def test_logger(self):
+        import homework
 
         assert 'logging' in sys.modules, 'Убедитесь, что настроили логирование для вашего бота'
 
