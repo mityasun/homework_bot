@@ -1,5 +1,7 @@
+import sys
 from inspect import signature
 
+# import logging
 import requests
 import telegram
 
@@ -7,19 +9,27 @@ import telegram
 class MockResponseGET:
 
     def __init__(self, url, params=None, random_sid=None, current_timestamp=None, **kwargs):
-        assert url.startswith('https://praktikum.yandex.ru/api/user_api/homework_statuses'), \
+        assert url.startswith('https://praktikum.yandex.ru/api/user_api/homework_statuses'), (
             'Проверьте, что вы делаете запрос на правильный ресурс API для запроса статуса домашней работы'
-        assert 'headers' in kwargs, 'Проверьте, что вы передали загаловки `headers` для запроса статуса домашней работы'
-        assert 'Authorization' in kwargs['headers'], \
+        )
+        assert 'headers' in kwargs, (
+            'Проверьте, что вы передали заголовки `headers` для запроса статуса домашней работы'
+        )
+        assert 'Authorization' in kwargs['headers'], (
             'Проверьте, что в параметрах `headers` для запроса статуса домашней работы добавили Authorization'
-        assert kwargs['headers']['Authorization'].startswith('OAuth '), \
+        )
+        assert kwargs['headers']['Authorization'].startswith('OAuth '), (
             'Проверьте,что в параметрах `headers` для запроса статуса домашней работы Authorization начинается с OAuth'
-        assert params is not None, \
+        )
+        assert params is not None, (
             'Проверьте, что передали параметры `params` для запроса статуса домашней работы'
-        assert 'from_date' in params, \
+        )
+        assert 'from_date' in params, (
             'Проверьте, что в параметрах `params` для запроса статуса домашней работы `from_date`'
-        assert params['from_date'] == current_timestamp,\
+        )
+        assert params['from_date'] == current_timestamp, (
             'Проверьте, что в параметрах `params` для запроса статуса домашней работы `from_date` передаете timestamp'
+        )
         self.random_sid = random_sid
 
     def json(self):
@@ -37,12 +47,16 @@ class MockTelegramBot:
         self.random_sid = random_sid
 
     def send_message(self, chat_id=None, text=None, **kwargs):
-        assert chat_id is not None, 'Проверьте, что вы передали chat_id= при отправки сообщения ботом Telegram'
-        assert text is not None, 'Проверьте, что вы передали text= при отправки сообщения ботом Telegram'
+        assert chat_id is not None, 'Проверьте, что вы передали chat_id= при отправке сообщения ботом Telegram'
+        assert text is not None, 'Проверьте, что вы передали text= при отправке сообщения ботом Telegram'
         return self.random_sid
 
 
 class TestHomework:
+
+    def test_logger(self):
+
+        assert 'logging' in sys.modules, 'Убедитесь, что настроили логирование для вашего бота'
 
     def test_send_message(self, monkeypatch, random_sid):
 
