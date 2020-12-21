@@ -1,5 +1,5 @@
 import sys
-from inspect import signature, getmembers
+from inspect import signature
 
 import requests
 import telegram
