@@ -1,5 +1,5 @@
 import sys
-from inspect import signature
+from inspect import signature, getmembers
 
 import requests
 import telegram
@@ -56,7 +56,7 @@ class TestHomework:
     def test_logger(self):
         import homework
 
-        assert 'logging' in sys.modules, 'Убедитесь, что настроили логирование для вашего бота'
+        assert hasattr(homework, 'logging'), 'Убедитесь, что настроили логирование для вашего бота'
 
     def test_send_message(self, monkeypatch, random_sid):
 
