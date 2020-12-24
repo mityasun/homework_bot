@@ -70,7 +70,7 @@ class TestHomework:
         assert hasattr(homework, 'send_message'), 'Функция `send_message()` не существует. Не удаляйте её.'
         assert hasattr(homework.send_message, '__call__'), 'Функция `send_message()` не существует. Не удаляйте её.'
         assert len(signature(homework.send_message).parameters) == 2, \
-            'Функция `send_message()` должна быть с одним параметром.'
+            'Функция `send_message()` должна быть с двумя параметрами.'
 
         bot = telegram.Bot(token='')
         result = homework.send_message('Test_message_check', bot)
