@@ -1,4 +1,3 @@
-import sys
 from inspect import signature
 
 import requests
@@ -12,22 +11,28 @@ class MockResponseGET:
             'Проверьте, что вы делаете запрос на правильный ресурс API для запроса статуса домашней работы'
         )
         assert 'headers' in kwargs, (
-            'Проверьте, что вы передали заголовки `headers` для запроса статуса домашней работы'
+            'Проверьте, что вы передали заголовки `headers` для запроса '
+            'статуса домашней работы'
         )
         assert 'Authorization' in kwargs['headers'], (
-            'Проверьте, что в параметрах `headers` для запроса статуса домашней работы добавили Authorization'
+            'Проверьте, что в параметрах `headers` для запроса статуса '
+            'домашней работы добавили Authorization'
         )
         assert kwargs['headers']['Authorization'].startswith('OAuth '), (
-            'Проверьте,что в параметрах `headers` для запроса статуса домашней работы Authorization начинается с OAuth'
+            'Проверьте,что в параметрах `headers` для запроса статуса '
+            'домашней работы Authorization начинается с OAuth'
         )
         assert params is not None, (
-            'Проверьте, что передали параметры `params` для запроса статуса домашней работы'
+            'Проверьте, что передали параметры `params` для запроса '
+            'статуса домашней работы'
         )
         assert 'from_date' in params, (
-            'Проверьте, что в параметрах `params` для запроса статуса домашней работы `from_date`'
+            'Проверьте, что в параметрах `params` для запроса статуса '
+            'домашней работы `from_date`'
         )
         assert params['from_date'] == current_timestamp, (
-            'Проверьте, что в параметрах `params` для запроса статуса домашней работы `from_date` передаете timestamp'
+            'Проверьте, что в параметрах `params` для запроса статуса '
+            'домашней работы `from_date` передаете timestamp'
         )
         self.random_sid = random_sid
 
@@ -42,12 +47,18 @@ class MockResponseGET:
 class MockTelegramBot:
 
     def __init__(self, token=None, random_sid=None, **kwargs):
-        assert token is not None, 'Проверьте, что вы передали токен бота Telegram'
+        assert token is not None, (
+            'Проверьте, что вы передали токен бота Telegram'
+        )
         self.random_sid = random_sid
 
     def send_message(self, chat_id=None, text=None, **kwargs):
-        assert chat_id is not None, 'Проверьте, что вы передали chat_id= при отправке сообщения ботом Telegram'
-        assert text is not None, 'Проверьте, что вы передали text= при отправке сообщения ботом Telegram'
+        assert chat_id is not None, (
+            'Проверьте, что вы передали chat_id= при отправке сообщения ботом Telegram'
+        )
+        assert text is not None, (
+            'Проверьте, что вы передали text= при отправке сообщения ботом Telegram'
+        )
         return self.random_sid
 
 
@@ -56,7 +67,9 @@ class TestHomework:
     def test_logger(self):
         import homework
 
-        assert hasattr(homework, 'logging'), 'Убедитесь, что настроили логирование для вашего бота'
+        assert hasattr(homework, 'logging'), (
+            'Убедитесь, что настроили логирование для вашего бота'
+        )
 
     def test_send_message(self, monkeypatch, random_sid):
 
@@ -67,10 +80,15 @@ class TestHomework:
 
         import homework
 
-        assert hasattr(homework, 'send_message'), 'Функция `send_message()` не существует. Не удаляйте её.'
-        assert hasattr(homework.send_message, '__call__'), 'Функция `send_message()` не существует. Не удаляйте её.'
-        assert len(signature(homework.send_message).parameters) == 2, \
+        assert hasattr(homework, 'send_message'), (
+            'Функция `send_message()` не существует. Не удаляйте её.'
+        )
+        assert hasattr(homework.send_message, '__call__'), (
+            'Функция `send_message()` не существует. Не удаляйте её.'
+        )
+        assert len(signature(homework.send_message).parameters) == 2, (
             'Функция `send_message()` должна быть с двумя параметрами.'
+        )
 
         bot = telegram.Bot(token='')
         result = homework.send_message('Test_message_check', bot)
@@ -86,22 +104,33 @@ class TestHomework:
 
         import homework
 
-        assert hasattr(homework, 'get_homework_statuses'), \
+        assert hasattr(homework, 'get_homework_statuses'), (
             'Функция `get_homework_statuses()` не существует. Не удаляйте её.'
-        assert hasattr(homework.get_homework_statuses, '__call__'), \
+        )
+        assert hasattr(homework.get_homework_statuses, '__call__'), (
             'Функция `get_homework_statuses()` не существует. Не удаляйте её.'
-        assert len(signature(homework.get_homework_statuses).parameters) == 1, \
+        )
+        assert len(signature(homework.get_homework_statuses).parameters) == 1, (
             'Функция `get_homework_statuses()` должна быть с одним параметром.'
+        )
 
         result = homework.get_homework_statuses(current_timestamp)
-        assert type(result) == dict, \
-            'Проверьте, что из функции get_homework_statuses() возвращается словарь'
-        assert 'homeworks' in result, \
-            'Проверьте, что из функции get_homework_statuses() возвращается словарь содержащий ключ homeworks'
-        assert 'current_date' in result, \
-            'Проверьте, что из функции get_homework_statuses() возвращается словарь содержащий ключ current_date'
-        assert result['current_date'] == random_sid, \
-            'Проверьте, что из функции get_homework_statuses() возращаете ответ API homework_statuses'
+        assert type(result) == dict, (
+            'Проверьте, что из функции get_homework_statuses() '
+            'возвращается словарь'
+        )
+        assert 'homeworks' in result, (
+            'Проверьте, что из функции get_homework_statuses() '
+            'возвращается словарь содержащий ключ homeworks'
+        )
+        assert 'current_date' in result, (
+            'Проверьте, что из функции get_homework_statuses() '
+            'возвращается словарь содержащий ключ current_date'
+        )
+        assert result['current_date'] == random_sid, (
+            'Проверьте, что из функции get_homework_statuses() '
+            'возращаете ответ API homework_statuses'
+        )
 
     def test_parse_homework_status(self, random_sid):
         test_data = {
@@ -115,24 +144,35 @@ class TestHomework:
 
         import homework
 
-        assert hasattr(homework, 'parse_homework_status'), \
+        assert hasattr(homework, 'parse_homework_status'), (
             'Функция `parse_homework_status()` не существует. Не удаляйте её.'
-        assert hasattr(homework.parse_homework_status, '__call__'), \
+        )
+        assert hasattr(homework.parse_homework_status, '__call__'), (
             'Функция `parse_homework_status()` не существует. Не удаляйте её.'
-        assert len(signature(homework.parse_homework_status).parameters) == 1, \
+        )
+        assert len(signature(homework.parse_homework_status).parameters) == 1, (
             'Функция `parse_homework_status()` должна быть с одним параметром.'
+        )
 
         result = homework.parse_homework_status(test_data)
-        assert result.startswith(f'У вас проверили работу "{random_sid}"'), \
-            'Проверьте, что возвращаете название домашней работы в возврате функции parse_homework_status()'
-        assert result.endswith(f'Ревьюеру всё понравилось, можно приступать к следующему уроку.'), \
-            'Проверьте, что возвращаете правильный вердикт для статуса approved ' \
-            'в возврате функции parse_homework_status()'
+        assert result.startswith(f'У вас проверили работу "{random_sid}"'), (
+            'Проверьте, что возвращаете название домашней работы в возврате '
+            'функции parse_homework_status()'
+        )
+        assert result.endswith(
+            'Ревьюеру всё понравилось, можно приступать к следующему уроку.'
+        ), (
+            'Проверьте, что возвращаете правильный вердикт для статуса '
+            'approved в возврате функции parse_homework_status()'
+        )
 
         test_data['status'] = 'rejected'
         result = homework.parse_homework_status(test_data)
-        assert result.startswith(f'У вас проверили работу "{random_sid}"'), \
-            'Проверьте, что возвращаете название домашней работы в возврате функции parse_homework_status()'
-        assert result.endswith(f'К сожалению в работе нашлись ошибки.'), \
-            'Проверьте, что возвращаете правильный вердикт для статуса rejected ' \
+        assert result.startswith(f'У вас проверили работу "{random_sid}"'), (
+            'Проверьте, что возвращаете название домашней работы '
             'в возврате функции parse_homework_status()'
+        )
+        assert result.endswith('К сожалению в работе нашлись ошибки.'), (
+            'Проверьте, что возвращаете правильный вердикт для статуса '
+            'rejected в возврате функции parse_homework_status()'
+        )
