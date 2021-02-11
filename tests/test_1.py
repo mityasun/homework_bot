@@ -64,7 +64,13 @@ class MockTelegramBot:
 
 class TestHomework:
 
-    def test_logger(self):
+    def test_logger(self, monkeypatch, random_sid):
+
+        def mock_telegram_bot(*args, **kwargs):
+            return MockTelegramBot(*args, random_sid=random_sid, **kwargs)
+
+        monkeypatch.setattr(telegram, "Bot", mock_telegram_bot)
+
         import homework
 
         assert hasattr(homework, 'logging'), (
