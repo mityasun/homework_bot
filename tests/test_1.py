@@ -1,4 +1,5 @@
 from inspect import signature
+from http import HTTPStatus
 
 import requests
 import telegram
@@ -35,6 +36,7 @@ class MockResponseGET:
             'домашней работы `from_date` передаете timestamp'
         )
         self.random_sid = random_sid
+        self.status_code = HTTPStatus.OK
 
     def json(self):
         data = {
