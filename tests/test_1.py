@@ -119,7 +119,7 @@ class TestHomework:
             'Функция `get_homeworks()` не существует. Не удаляйте её.'
         )
         assert len(signature(homework.get_homeworks).parameters) == 1, (
-            'Функция `get_homework_statuses()` должна быть с одним параметром.'
+            'Функция `get_homeworks()` должна быть с одним параметром.'
         )
 
         result = homework.get_homeworks(current_timestamp)
