@@ -98,11 +98,6 @@ class TestHomework:
             'Функция `send_message()` должна принимать только один аргумент.'
         )
 
-        bot = telegram.Bot(token='')
-        result = homework.send_message('Test_message_check', bot)
-        assert result == random_sid, \
-            'Проверьте, что вы возвращаете в функции send_message() отправленное сообщение ботом bot.send_message()'
-
     def test_get_homeworks(self, monkeypatch, random_sid, current_timestamp):
 
         def mock_response_get(*args, **kwargs):
