@@ -7,10 +7,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
 PRAKTIKUM_TOKEN = os.getenv('PRAKTIKUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
+
+# проинициализируйте бота здесь,
+# чтобы он был доступен в каждом нижеобъявленном методе,
+# и не нужно было прокидывать его в каждый вызов
+bot = ...
 
 
 def parse_homework_status(homework):
