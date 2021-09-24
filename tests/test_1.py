@@ -8,9 +8,11 @@ import telegram
 class MockResponseGET:
 
     def __init__(self, url, params=None, random_sid=None, current_timestamp=None, **kwargs):
-        assert url.startswith('https://praktikum.yandex.ru/api/user_api/homework_statuses'), (
-            'Проверьте, что вы делаете запрос на правильный ресурс API для запроса статуса домашней работы'
-        )
+        assert (
+            url.startswith('https://praktikum.yandex.ru/api/user_api/homework_statuses')
+            or
+            url.startswith('https://practicum.yandex.ru/api/user_api/homework_statuses')
+        ), 'Проверьте, что вы делаете запрос на правильный ресурс API для запроса статуса домашней работы'
         assert 'headers' in kwargs, (
             'Проверьте, что вы передали заголовки `headers` для запроса '
             'статуса домашней работы'
