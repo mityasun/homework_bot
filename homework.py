@@ -1,51 +1,56 @@
-import os
-import time
-import requests
-import telegram
-from dotenv import load_dotenv
+import logging
+
+...
+
+PRACTICUM_TOKEN = ...
+TELEGRAM_TOKEN = ...
+CHAT_ID = ...
+
+...
+
+RETRY_TIME = 300
+ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
+
+HOMEWORK_STATUSES = {
+    'approved': 'Работа проверена: ревьюеру всё понравилось. Ура!',
+    'reviewing': 'Работа взята на проверку ревьюером.',
+    'rejected': 'Работа проверена, в ней нашлись ошибки.'
+}
 
 
-load_dotenv()
-
-PRAKTIKUM_TOKEN = os.getenv('PRAKTIKUM_TOKEN')
-TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
-CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
-
-# проинициализируйте бота здесь,
-# чтобы он был доступен в каждом нижеобъявленном методе,
-# и не нужно было прокидывать его в каждый вызов
-bot = ...
+def send_message(bot, message):
+    ...
 
 
-def parse_homework_status(homework):
-    homework_name = ...
-    if ...
-        verdict = 'К сожалению, в работе нашлись ошибки.'
-    else:
-        verdict = 'Ревьюеру всё понравилось, работа зачтена!'
-    return f'У вас проверили работу "{homework_name}"!\n\n{verdict}'
+def get_api_answer(url, current_timestamp):
+    ...
 
 
-def get_homeworks(current_timestamp):
-    homework_statuses = ...
-    return homework_statuses.json()
+def parse_status(homework):
+    verdict = ...
+    ...
+
+    return f'Изменился статус проверки работы "{homework_name}". {verdict}'
 
 
-def send_message(message):
-    return bot.send_message(...)
+def check_response(response):
+    homeworks = response.get('homeworks')
+    ...
 
 
 def main():
-    current_timestamp = int(time.time())  # Начальное значение timestamp
-
+    bot = telegram.Bot(token=TELEGRAM_TOKEN)
+    current_timestamp = int(time.time())
+    ...
     while True:
         try:
             ...
-            time.sleep(5 * 60)  # Опрашивать раз в пять минут
-
-        except Exception as e:
-            print(f'Бот упал с ошибкой: {e}')
-            time.sleep(5)
+            time.sleep(RETRY_TIME)
+        except Exception as error:
+            message = f'Сбой в работе программы: {error}'
+            ...
+            time.sleep(RETRY_TIME)
+            continue
 
 
 if __name__ == '__main__':
