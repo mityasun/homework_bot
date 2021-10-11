@@ -233,6 +233,20 @@ class TestHomework:
                 current_timestamp=current_timestamp,
                 **kwargs
             )
+
+            def valid_response_json():
+                data = {
+                    "homeworks": [
+                        {
+                            'homework_name': 'hw123',
+                            'status': 'approved'
+                        }
+                    ],
+                    "current_date": random_sid
+                }
+                return data
+
+            response.json = valid_response_json
             return response
 
         monkeypatch.setattr(requests, 'get', mock_response_get)
@@ -242,10 +256,49 @@ class TestHomework:
         func_name = 'check_response'
         response = homework.get_api_answer(api_url, current_timestamp)
         status = homework.check_response(response)
-        assert type(status) == bool, (
+        assert status, (
             f'Убедитесь, что функция `{func_name} '
-            'возвращает ответ типа `bool`, '
+            'правильно работает '
             'при корректном ответе от API'
+        )
+
+    def test_check_response_unknown_status(self, monkeypatch, random_sid,
+                                           current_timestamp, api_url):
+        def mock_response_get(*args, **kwargs):
+            response = MockResponseGET(
+                *args, random_sid=random_sid,
+                current_timestamp=current_timestamp,
+                **kwargs
+            )
+
+            def valid_response_json():
+                data = {
+                    "homeworks": [
+                        {
+                            'homework_name': 'hw123',
+                            'status': 'unknown'
+                        }
+                    ],
+                    "current_date": random_sid
+                }
+                return data
+
+            response.json = valid_response_json
+            return response
+
+        monkeypatch.setattr(requests, 'get', mock_response_get)
+
+        import homework
+
+        func_name = 'check_response'
+        response = homework.get_api_answer(api_url, current_timestamp)
+        try:
+            homework.check_response(response)
+        except:
+            return
+        assert False, (
+            f'Убедитесь, что функция `{func_name} правильно работает '
+            'при недокументированном статусе домашней работы в ответе от API'
         )
 
     def test_check_response_no_homeworks(self, monkeypatch, random_sid,
@@ -313,4 +366,28 @@ class TestHomework:
             f'Убедитесь, что в функции `{func_name} '
             'обрабатываете ситуацию, когда ответ от API '
             'содержит пустой словарь`, и выбрасываете ошибку'
+        )
+
+    def test_api_response_timeout(self, monkeypatch, random_sid,
+                                  current_timestamp, api_url):
+        def mock_response_get(*args, **kwargs):
+            response = MockResponseGET(
+                *args, random_sid=random_sid,
+                current_timestamp=current_timestamp,
+                http_status=HTTPStatus.REQUEST_TIMEOUT, **kwargs
+            )
+            return response
+
+        monkeypatch.setattr(requests, 'get', mock_response_get)
+
+        import homework
+
+        func_name = 'check_response'
+        try:
+            homework.get_api_answer(api_url, current_timestamp)
+        except:
+            return
+        assert False, (
+            f'Убедитесь, что в функции `{func_name}` обрабатываете ситуацию, '
+            'когда API возвращает код, отличный от 200'
         )
