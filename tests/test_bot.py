@@ -8,7 +8,7 @@ import os
 
 class MockResponseGET:
 
-    def __init__(self, url, params=None, random_sid=None,
+    def __init__(self, url, params=None, random_timestamp=None,
                  current_timestamp=None, http_status=HTTPStatus.OK, **kwargs):
         assert (
             url.startswith(
@@ -42,24 +42,24 @@ class MockResponseGET:
             'Проверьте, что в параметрах `params` для запроса статуса '
             'домашней работы `from_date` передаете timestamp'
         )
-        self.random_sid = random_sid
+        self.random_timestamp = random_timestamp
         self.status_code = http_status
 
     def json(self):
         data = {
             "homeworks": [],
-            "current_date": self.random_sid
+            "current_date": self.random_timestamp
         }
         return data
 
 
 class MockTelegramBot:
 
-    def __init__(self, token=None, random_sid=None, **kwargs):
+    def __init__(self, token=None, random_timestamp=None, **kwargs):
         assert token is not None, (
             'Проверьте, что вы передали токен бота Telegram'
         )
-        self.random_sid = random_sid
+        self.random_timestamp = random_timestamp
 
     def send_message(self, chat_id=None, text=None, **kwargs):
         assert chat_id is not None, (
@@ -70,7 +70,7 @@ class MockTelegramBot:
             'Проверьте, что вы передали text= при отправке '
             'сообщения ботом Telegram'
         )
-        return self.random_sid
+        return self.random_timestamp
 
 
 class TestHomework:
@@ -97,9 +97,9 @@ class TestHomework:
         for v in env_vars:
             os.environ[v] = ''
 
-    def test_logger(self, monkeypatch, random_sid):
+    def test_logger(self, monkeypatch, random_timestamp):
         def mock_telegram_bot(*args, **kwargs):
-            return MockTelegramBot(*args, random_sid=random_sid, **kwargs)
+            return MockTelegramBot(*args, random_timestamp=random_timestamp, **kwargs)
 
         monkeypatch.setattr(telegram, "Bot", mock_telegram_bot)
 
@@ -109,20 +109,20 @@ class TestHomework:
             'Убедитесь, что настроили логирование для вашего бота'
         )
 
-    def test_send_message(self, monkeypatch, random_sid):
+    def test_send_message(self, monkeypatch, random_timestamp):
         def mock_telegram_bot(*args, **kwargs):
-            return MockTelegramBot(*args, random_sid=random_sid, **kwargs)
+            return MockTelegramBot(*args, random_timestamp=random_timestamp, **kwargs)
 
         monkeypatch.setattr(telegram, "Bot", mock_telegram_bot)
 
         import homework
         utils.check_function(homework, 'send_message', 2)
 
-    def test_get_api_answers(self, monkeypatch, random_sid,
+    def test_get_api_answers(self, monkeypatch, random_timestamp,
                              current_timestamp, api_url):
         def mock_response_get(*args, **kwargs):
             return MockResponseGET(
-                *args, random_sid=random_sid,
+                *args, random_timestamp=random_timestamp,
                 current_timestamp=current_timestamp, **kwargs
             )
 
@@ -141,19 +141,25 @@ class TestHomework:
         keys_to_check = ['homeworks', 'current_date']
         for key in keys_to_check:
             assert key in result, (
-                f'Проверьте, что из функции `{func_name}` '
-                f'возвращается словарь, содержащий ключ `{key}`'
+                f'Проверьте, что функция `{func_name}` '
+                f'возвращает словарь, содержащий ключ `{key}`'
             )
-        assert result['current_date'] == random_sid, (
-            f'Проверьте, что из функции `{func_name}` '
-            'возращаете ответ API homework_statuses'
+        assert type(result['current_date']) == int, (
+            f'Проверьте, что функция `{func_name}` '
+            'в ответе API возвращает значение '
+            'ключа `current_date` типа `int`'
+        )
+        assert result['current_date'] == random_timestamp, (
+            f'Проверьте, что функция `{func_name}` '
+            'в ответе API возвращает корректное значение '
+            'ключа `current_date`'
         )
 
-    def test_get_500_api_answer(self, monkeypatch, random_sid,
+    def test_get_500_api_answer(self, monkeypatch, random_timestamp,
                                 current_timestamp, api_url):
         def mock_500_response_get(*args, **kwargs):
             response = MockResponseGET(
-                *args, random_sid=random_sid,
+                *args, random_timestamp=random_timestamp,
                 current_timestamp=current_timestamp,
                 http_status=HTTPStatus.INTERNAL_SERVER_ERROR, **kwargs
             )
@@ -180,11 +186,11 @@ class TestHomework:
             'когда API возвращает код, отличный от 200'
         )
 
-    def test_parse_status(self, random_sid):
+    def test_parse_status(self, random_timestamp):
         test_data = {
             "id": 123,
             "status": "approved",
-            "homework_name": str(random_sid),
+            "homework_name": str(random_timestamp),
             "reviewer_comment": "Всё нравится",
             "date_updated": "2020-02-13T14:40:57Z",
             "lesson_name": "Итоговый проект"
@@ -198,7 +204,7 @@ class TestHomework:
 
         result = homework.parse_status(test_data)
         assert result.startswith(
-            f'Изменился статус проверки работы "{random_sid}"'
+            f'Изменился статус проверки работы "{random_timestamp}"'
         ), (
             'Проверьте, что возвращаете название домашней работы в возврате '
             f'функции `{func_name}`'
@@ -213,7 +219,7 @@ class TestHomework:
         test_data['status'] = 'rejected'
         result = homework.parse_status(test_data)
         assert result.startswith(
-            f'Изменился статус проверки работы "{random_sid}"'
+            f'Изменился статус проверки работы "{random_timestamp}"'
         ), (
             'Проверьте, что возвращаете название домашней работы '
             'в возврате функции parse_status()'
@@ -225,11 +231,11 @@ class TestHomework:
             'rejected в возврате функции parse_status()'
         )
 
-    def test_check_response(self, monkeypatch, random_sid,
+    def test_check_response(self, monkeypatch, random_timestamp,
                             current_timestamp, api_url):
         def mock_response_get(*args, **kwargs):
             response = MockResponseGET(
-                *args, random_sid=random_sid,
+                *args, random_timestamp=random_timestamp,
                 current_timestamp=current_timestamp,
                 **kwargs
             )
@@ -242,7 +248,7 @@ class TestHomework:
                             'status': 'approved'
                         }
                     ],
-                    "current_date": random_sid
+                    "current_date": random_timestamp
                 }
                 return data
 
@@ -262,11 +268,11 @@ class TestHomework:
             'при корректном ответе от API'
         )
 
-    def test_check_response_unknown_status(self, monkeypatch, random_sid,
+    def test_check_response_unknown_status(self, monkeypatch, random_timestamp,
                                            current_timestamp, api_url):
         def mock_response_get(*args, **kwargs):
             response = MockResponseGET(
-                *args, random_sid=random_sid,
+                *args, random_timestamp=random_timestamp,
                 current_timestamp=current_timestamp,
                 **kwargs
             )
@@ -279,7 +285,7 @@ class TestHomework:
                             'status': 'unknown'
                         }
                     ],
-                    "current_date": random_sid
+                    "current_date": random_timestamp
                 }
                 return data
 
@@ -301,18 +307,18 @@ class TestHomework:
             'при недокументированном статусе домашней работы в ответе от API'
         )
 
-    def test_check_response_no_homeworks(self, monkeypatch, random_sid,
+    def test_check_response_no_homeworks(self, monkeypatch, random_timestamp,
                                          current_timestamp, api_url):
         def mock_no_homeworks_response_get(*args, **kwargs):
             response = MockResponseGET(
-                *args, random_sid=random_sid,
+                *args, random_timestamp=random_timestamp,
                 current_timestamp=current_timestamp,
                 **kwargs
             )
 
             def json_invalid():
                 data = {
-                    "current_date": random_sid
+                    "current_date": random_timestamp
                 }
                 return data
 
@@ -335,11 +341,11 @@ class TestHomework:
             'не содержит ключа `homeworks`, и выбрасываете ошибку'
         )
 
-    def test_check_response_empty(self, monkeypatch, random_sid,
+    def test_check_response_empty(self, monkeypatch, random_timestamp,
                                   current_timestamp, api_url):
         def mock_empty_response_get(*args, **kwargs):
             response = MockResponseGET(
-                *args, random_sid=random_sid,
+                *args, random_timestamp=random_timestamp,
                 current_timestamp=current_timestamp,
                 **kwargs
             )
@@ -368,11 +374,11 @@ class TestHomework:
             'содержит пустой словарь`, и выбрасываете ошибку'
         )
 
-    def test_api_response_timeout(self, monkeypatch, random_sid,
+    def test_api_response_timeout(self, monkeypatch, random_timestamp,
                                   current_timestamp, api_url):
         def mock_response_get(*args, **kwargs):
             response = MockResponseGET(
-                *args, random_sid=random_sid,
+                *args, random_timestamp=random_timestamp,
                 current_timestamp=current_timestamp,
                 http_status=HTTPStatus.REQUEST_TIMEOUT, **kwargs
             )
