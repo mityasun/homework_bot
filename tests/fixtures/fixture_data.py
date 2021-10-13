@@ -1,18 +1,14 @@
 import random
-import string
 from datetime import datetime
 
 import pytest
 
 
-def random_string(string_length=15):
-    letters = string.ascii_letters
-    return ''.join(random.choice(letters) for _ in range(string_length))
-
-
 @pytest.fixture
-def random_sid():
-    return random_string()
+def random_timestamp():
+    left_ts = 1000198000
+    right_ts = 1000198991
+    return random.randint(left_ts, right_ts)
 
 
 @pytest.fixture
