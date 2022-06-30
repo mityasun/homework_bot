@@ -111,6 +111,7 @@ def main():
         raise SystemError('Отсутствует токен. Бот остановлен!')
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
+    send_message(bot, 'Бот начал работу')
     logging.info('Бот начал работу')
 
     while True:
