@@ -117,9 +117,10 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
-            homework = homeworks[0]
-            homework_status = parse_status(homework)
-            send_message(bot, homework_status)
+            for homework in homeworks:
+                homework = homeworks[0]
+                homework_status = parse_status(homework)
+                send_message(bot, homework_status)
 
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
