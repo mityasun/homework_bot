@@ -118,16 +118,17 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
+            current_timestamp = int(time.time())
             for homework in homeworks:
-                homework = homeworks[0]
-                homework_status = parse_status(homework)
+                homework_status = parse_status(homeworks[0])
                 send_message(bot, homework_status)
+            time.sleep(RETRY_TIME)
 
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message, exc_info=True)
             send_message(bot, message)
-            return message
+            time.sleep(RETRY_TIME)
 
         finally:
             time.sleep(RETRY_TIME)
