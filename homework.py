@@ -32,7 +32,7 @@ def send_message(bot, message):
             chat_id=TELEGRAM_CHAT_ID,
             text=message
         )
-        logging.info(f'Отправлен статус работы в telegram')
+        logging.info('Отправлен статус работы в telegram')
     except Exception as error:
         raise Exception(error)
 
@@ -94,7 +94,7 @@ def check_tokens():
     """Проверяем, что есть все токены.
     Если нет хотя бы одного, то останавливаем бота.
     """
-    logging.info(f'Все токены есть')
+    logging.info('Все токены есть')
     return all([PRACTICUM_TOKEN, TELEGRAM_TOKEN, TELEGRAM_CHAT_ID])
 
 
@@ -110,17 +110,16 @@ def main():
     if not check_tokens():
         raise SystemError('Отсутствует токен. Бот остановлен!')
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = int(time.time())
-    logging.info(f'Бот начал работу')
+    current_timestamp = 1646053579
+    logging.info('Бот начал работу')
 
     while True:
         try:
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
-            for i in homeworks:
-                homework = homeworks[0]
-                homework_status = parse_status(homework)
-                send_message(bot, homework_status)
+            homework = homeworks[0]
+            homework_status = parse_status(homework)
+            send_message(bot, homework_status)
 
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
