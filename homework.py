@@ -115,7 +115,7 @@ def main():
         logging.critical(message)
         sys.exit(message)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = 1654493868
+    current_timestamp = int(time.time())
     send_message(bot, 'Бот начал работу')
     logging.info('Бот начал работу')
     current_report = {}
@@ -125,7 +125,7 @@ def main():
         try:
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
-            current_timestamp = response.get(current_timestamp) or int(time.time())
+            current_timestamp = response.get(current_timestamp)
             for homework in homeworks:
                 homework_status = parse_status(homeworks[0])
                 send_message(bot, homework_status)
