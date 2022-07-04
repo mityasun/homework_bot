@@ -128,13 +128,13 @@ def main():
     while True:
         try:
             response = get_api_answer(current_timestamp)
+            current_timestamp = response.get(
+                'current_date', int(time.time())
+            )
             homeworks = check_response(response)
             if homeworks:
                 homework_status = parse_status(homeworks[0])
                 send_message(bot, homework_status)
-                current_timestamp = response.get(
-                    'current_date', int(time.time())
-                )
             else:
                 logging.info('Нет новых статусов')
 
