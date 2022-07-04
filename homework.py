@@ -8,7 +8,7 @@ import requests
 import telegram
 from dotenv import load_dotenv
 
-from exceptions import WrongResponseCode
+from exceptions import WrongResponseCode, NotForSend
 
 load_dotenv()
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
@@ -16,7 +16,7 @@ TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 
-RETRY_TIME = 600
+RETRY_TIME = 10
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -32,12 +32,11 @@ def send_message(bot, message):
     """Отправляет сообщение в telegram."""
     try:
         logging.info('Начало отправки статуса в telegram')
-        bot.send_message(
-            chat_id=TELEGRAM_CHAT_ID,
-            text=message
-        )
-    except telegram.error.TelegramError(message) as error:
-        raise Exception(error)
+        bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
+    except telegram.error.TelegramError as error:
+        raise NotForSend(f'Ошибка отправки статуса в telegram: {error}')
+    else:
+        logging.info('Статус отправлен в telegram')
 
 
 def get_api_answer(current_timestamp):
@@ -56,11 +55,17 @@ def get_api_answer(current_timestamp):
         if response.status_code != HTTPStatus.OK:
             raise WrongResponseCode(
                 f'Ответ API не возвращает 200. '
-                f'Код ответа: {response.status_code}.Причина: {response.reason}.'
+                f'Код ответа: {response.status_code}. '
+                f'Причина: {response.reason}. '
+                f'Текст: {response.text}.'
             )
         return response.json()
     except Exception as error:
-        raise WrongResponseCode(error)
+        message = ('API не возвращает 200. Запрос: {url}, {headers}, {params}.'
+                   ).format(url=params_request['url'],
+                            headers=params_request['headers'],
+                            params=params_request['params'])
+        raise WrongResponseCode(message, error)
 
 
 def check_response(response):
@@ -115,25 +120,34 @@ def main():
         logging.critical(message)
         sys.exit(message)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = int(time.time())
+    current_timestamp = 1655291618
     send_message(bot, 'Бот начал работу')
     logging.info('Бот начал работу')
-    current_report = {}
-    prev_report = {}
+    prev_msg = ''
 
     while True:
         try:
             response = get_api_answer(current_timestamp)
             homeworks = check_response(response)
-            current_timestamp = response.get(current_timestamp)
-            for homework in homeworks:
+            if homeworks:
                 homework_status = parse_status(homeworks[0])
                 send_message(bot, homework_status)
+                current_timestamp = response.get(
+                    'current_date', int(time.time())
+                )
+            else:
+                logging.info('Нет новых статусов')
+
+        except NotForSend as error:
+            message = f'Сбой в работе программы: {error}'
+            logging.error(message, exc_info=True)
 
         except Exception as error:
             message = f'Сбой в работе программы: {error}'
             logging.error(message, exc_info=True)
-            send_message(bot, message)
+            if message != prev_msg:
+                send_message(bot, message)
+                prev_msg = message
 
         finally:
             time.sleep(RETRY_TIME)
@@ -142,15 +156,11 @@ def main():
 if __name__ == '__main__':
     logging.basicConfig(
         level=logging.INFO,
-        filename='main.log',
-        filemode='a',
-        encoding='UTF-8',
+        handlers=[
+            logging.FileHandler(
+                os.path.abspath('main.log'), mode='a', encoding='UTF-8'),
+            logging.StreamHandler(stream=sys.stdout)],
         format='%(asctime)s, %(levelname)s, %(funcName)s, '
                '%(lineno)s, %(message)s, %(name)s'
-    )
-    handler_console = logging.StreamHandler(stream=sys.stdout)
-    handler_console.setFormatter(
-        logging.Formatter('%(asctime)s, %(levelname)s, %(funcName)s, '
-                          '%(lineno)s, %(message)s, %(name)s')
     )
     main()
