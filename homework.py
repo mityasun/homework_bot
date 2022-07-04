@@ -120,7 +120,7 @@ def main():
         logging.critical(message)
         sys.exit(message)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    current_timestamp = 1655291618
+    current_timestamp = int(time.time())
     send_message(bot, 'Бот начал работу')
     logging.info('Бот начал работу')
     prev_msg = ''
