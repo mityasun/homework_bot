@@ -8,11 +8,7 @@ import requests
 import telegram
 from dotenv import load_dotenv
 
-from exceptions import (EmptyResponseFromAPI,
-                        NotForSend,
-                        TelegramError,
-                        WrongResponseCode
-                        )
+from exceptions import WrongResponseCode, NotForSend
 
 load_dotenv()
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
@@ -38,7 +34,7 @@ def send_message(bot, message):
         logging.info('Начало отправки статуса в telegram')
         bot.send_message(chat_id=TELEGRAM_CHAT_ID, text=message)
     except telegram.error.TelegramError as error:
-        raise TelegramError(f'Ошибка отправки статуса в telegram: {error}')
+        raise NotForSend(f'Ошибка отправки статуса в telegram: {error}')
     else:
         logging.info('Статус отправлен в telegram')
 
@@ -53,9 +49,7 @@ def get_api_answer(current_timestamp):
         'headers': HEADERS,
         'params': {'from_date': timestamp},
     }
-    message = ('Начало запроса к API. Запрос: {url}, {headers}, {params}.'
-               ).format(**params_request)
-    logging.info(message)
+    logging.info('Начало запроса к API')
     try:
         response = requests.get(**params_request)
         if response.status_code != HTTPStatus.OK:
@@ -68,7 +62,9 @@ def get_api_answer(current_timestamp):
         return response.json()
     except Exception as error:
         message = ('API не возвращает 200. Запрос: {url}, {headers}, {params}.'
-                   ).format(**params_request)
+                   ).format(url=params_request['url'],
+                            headers=params_request['headers'],
+                            params=params_request['params'])
         raise WrongResponseCode(message, error)
 
 
@@ -84,7 +80,7 @@ def check_response(response):
     if not isinstance(response, dict):
         raise TypeError('Ответ API не является dict')
     if 'homeworks' not in response or 'current_date' not in response:
-        raise EmptyResponseFromAPI('Нет ключа homeworks в ответе API')
+        raise KeyError('Нет ключа homeworks в ответе API')
     homeworks = response.get('homeworks')
     if not isinstance(homeworks, list):
         raise KeyError('homeworks не является list')
@@ -125,9 +121,8 @@ def main():
         sys.exit(message)
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     current_timestamp = int(time.time())
-    start_message = 'Бот начал работу'
-    send_message(bot, start_message)
-    logging.info(start_message)
+    send_message(bot, 'Бот начал работу')
+    logging.info('Бот начал работу')
     prev_msg = ''
 
     while True:
@@ -138,14 +133,10 @@ def main():
             )
             homeworks = check_response(response)
             if homeworks:
-                message = parse_status(homeworks[0])
+                homework_status = parse_status(homeworks[0])
+                send_message(bot, homework_status)
             else:
-                message = 'Нет новых статусов'
-            if message != prev_msg:
-                send_message(bot, message)
-                prev_msg = message
-            else:
-                logging.info(message)
+                logging.info('Нет новых статусов')
 
         except NotForSend as error:
             message = f'Сбой в работе программы: {error}'
@@ -170,6 +161,6 @@ if __name__ == '__main__':
                 os.path.abspath('main.log'), mode='a', encoding='UTF-8'),
             logging.StreamHandler(stream=sys.stdout)],
         format='%(asctime)s, %(levelname)s, %(funcName)s, '
-               '%(lineno)s, %(name)s, %(message)s'
+               '%(lineno)s, %(message)s, %(name)s'
     )
     main()
