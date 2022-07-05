@@ -8,7 +8,11 @@ import requests
 import telegram
 from dotenv import load_dotenv
 
-from exceptions import EmptyResponseFromAPI, NotForSend, TelegramError, WrongResponseCode
+from exceptions import (EmptyResponseFromAPI,
+                        NotForSend,
+                        TelegramError,
+                        WrongResponseCode
+                        )
 
 load_dotenv()
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
