@@ -20,7 +20,7 @@ TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 
-RETRY_TIME = 600
+RETRY_TIME = 10
 ENDPOINT = 'https://practicum.yandex.ru/api/user_api/homework_statuses/'
 HEADERS = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
 
@@ -53,8 +53,10 @@ def get_api_answer(current_timestamp):
         'headers': HEADERS,
         'params': {'from_date': timestamp},
     }
-    message = ('Начало запроса к API. Запрос: {url}.'
-               ).format(url={**params_request})
+    message = ('Начало запроса к API. Запрос: {url}, {headers}, {params}.'
+               ).format(url={**params_request}['url'],
+                        headers={**params_request}['headers'],
+                        params={**params_request}['params'])
     logging.info(message)
     try:
         response = requests.get(**params_request)
@@ -67,8 +69,10 @@ def get_api_answer(current_timestamp):
             )
         return response.json()
     except Exception as error:
-        message = ('API не возвращает 200. Запрос: {url}.'
-                   ).format(url={**params_request})
+        message = ('API не возвращает 200. Запрос: {url}, {headers}, {params}.'
+                   ).format(url={**params_request}['url'],
+                            headers={**params_request}['headers'],
+                            params={**params_request}['params'])
         raise WrongResponseCode(message, error)
 
 
@@ -141,11 +145,11 @@ def main():
                 message = parse_status(homeworks[0])
             else:
                 message = 'Нет новых статусов'
-                if message != prev_msg:
-                    send_message(bot, message)
-                    prev_msg = message
-                else:
-                    logging.info(message)
+            if message != prev_msg:
+                send_message(bot, message)
+                prev_msg = message
+            else:
+                logging.info(message)
 
         except NotForSend as error:
             message = f'Сбой в работе программы: {error}'
