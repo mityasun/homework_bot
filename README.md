@@ -64,7 +64,7 @@ python homework.py
 Получите токен в ЯндексПрактикум:<br>
 [Получить токен](https://oauth.yandex.ru/authorize?response_type=token&client_id=1d0b9dd4d652455a9eb710d450ff456a)
 
-получите id своего чата у бота Userinfobot:<br>
+Получите id своего чата у бота Userinfobot:<br>
 [Получить свой id](https://t.me/userinfobot)
 
 
