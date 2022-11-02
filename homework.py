@@ -32,7 +32,7 @@ HOMEWORK_VERDICTS = {
 }
 
 
-def send_message(bot, message):
+def send_message(bot: telegram.bot.Bot, message: str) -> None:
     """Отправляет сообщение в telegram."""
     try:
         logging.info('Начало отправки статуса в telegram')
@@ -43,7 +43,7 @@ def send_message(bot, message):
         logging.info('Статус отправлен в telegram')
 
 
-def get_api_answer(current_timestamp):
+def get_api_answer(current_timestamp: int) -> dict:
     """Отправляем запрос к API и получаем список домашних работ.
     Также проверяем, что эндпоинт отдает статус 200.
     """
@@ -72,7 +72,7 @@ def get_api_answer(current_timestamp):
         raise WrongResponseCode(message, error)
 
 
-def check_response(response):
+def check_response(response: dict) -> list:
     """Проверяет ответ API на корректность.
     В качестве параметра функция получает ответ API,
     приведенный к типам данных Python.
@@ -91,7 +91,7 @@ def check_response(response):
     return homeworks
 
 
-def parse_status(homework):
+def parse_status(homework: dict) -> str:
     """Извлекает из информации о конкретной домашней работе статус этой работы.
     В случае успеха, функция возвращает подготовленную для отправки
     в Telegram строку.
@@ -109,7 +109,7 @@ def parse_status(homework):
                      )
 
 
-def check_tokens():
+def check_tokens() -> bool:
     """Проверяем, что есть все токены.
     Если нет хотя бы одного, то останавливаем бота.
     """

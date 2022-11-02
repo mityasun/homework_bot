@@ -6,8 +6,9 @@
 - Логгирует свою работу и сообщает вам о важных проблемах сообщением в Telegram.
 
 ### Технологии
-Python 3.9.8<br>
-API
+- Python 3.9.8<br>
+- Telegram API<br>
+- API
 
 ### Как запустить проект:
 
@@ -18,42 +19,27 @@ git clone https://github.com/mityasun/homework_bot.git
 ```
 
 ```
-cd homework_bot
+cd homework_bot/
 ```
 
-Cоздать и активировать виртуальное окружение:
+Создать файл .env в этой директории и укажите собственные токены:
 
 ```
-python -m venv env
-```
-
-```
-source env/bin/activate
-```
-
-Установить зависимости из файла requirements.txt:
-
-```
-python -m pip install --upgrade pip
-```
-
-```
-pip install -r requirements.txt
-```
-
-Укажите собственные токены:
-
-```
-Создать файл .env в директории проекта и пропишите в нем:
 PRACTICUM_TOKEN = токен Яндекс практикум.
-TELEGRAM_TOKEN = токен Telegram полученный от BotFather.
+TELEGRAM_TOKEN = токен вашего бота Telegram полученный от BotFather.
 TELEGRAM_CHAT_ID = id вашего чата в Telegram.
 ```
 
-Запустить проект:
+Cоздать образ из Docker файла:
 
 ```
-python homework.py
+docker build -t homework_bot .
+```
+
+Запустите Docker контейнер:
+
+```
+docker run --name homework_bot homework_bot
 ```
 
 ### Получаем токены:
