@@ -45,13 +45,13 @@ docker run --name homework_bot homework_bot
 ### Получаем токены:
 
 Зарегистрируйте бота в BotFather:<br>
-[Регистрация бота и получение токена](https://t.me/BotFather)
+<a href="https://t.me/BotFather" target="_blank">Регистрация бота и получение токена</a>
 
 Получите токен в ЯндексПрактикум:<br>
-[Получить токен](https://oauth.yandex.ru/authorize?response_type=token&client_id=1d0b9dd4d652455a9eb710d450ff456a)
+<a href="https://oauth.yandex.ru/authorize?response_type=token&client_id=1d0b9dd4d652455a9eb710d450ff456a" target="_blank">Получить токен</a>
 
 Получите id своего чата у бота Userinfobot:<br>
-[Получить свой id](https://t.me/userinfobot)
+<a href="https://t.me/userinfobot" target="_blank">Получить свой id</a>
 
 
 ### Автор проекта:
