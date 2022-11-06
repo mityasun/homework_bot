@@ -1,3 +1,5 @@
+![Test and push to Docker Hub](https://github.com/mityasun/homework_bot/actions/workflows/homework_bot_workflow.yml/badge.svg)
+
 ## Telegram bot для проверки статуса домашней работы на ЯндексПрактикуме.
 
 ### Возможности бота:
@@ -6,9 +8,8 @@
 - Логгирует свою работу и сообщает вам о важных проблемах сообщением в Telegram.
 
 ### Технологии
-- Python 3.9.8<br>
-- Telegram API<br>
-- API
+![Python](https://img.shields.io/badge/Python-3.9.8-%23254F72?style=for-the-badge&logo=python&logoColor=yellow&labelColor=254f72)
+![Telegram](https://img.shields.io/badge/telegram-28A4E4?style=for-the-badge&logo=telegram&logoColor=white&labelColor=28A4E4)
 
 ### Как запустить проект:
 
