@@ -2,7 +2,7 @@ APScheduler==3.6.3
 atomicwrites==1.4.0
 attrs==21.4.0
 cachetools==4.2.2
-certifi==2022.6.15
+certifi==2022.12.7
 charset-normalizer==2.0.12
 colorama==0.4.5
 flake8==3.9.2
